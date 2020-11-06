@@ -5,7 +5,7 @@
 
 #include <tchar.h>
 
-extern "C" int RDCOM_WriteErrors = 1;
+extern "C" int RDCOM_WriteErrors = 0;
 
 extern "C"
 SEXP
@@ -28,9 +28,9 @@ getErrorFILE()
 {
   static FILE *f = NULL;
   if(!f) {
-    f = fopen("C:\\RDCOM.err", "a");
+    f = fopen("C:\\temp\\RDCOM.err", "a");
     if(!f) {
-      f = fopen("C:\\RDCOM_server.err", "a");
+      f = fopen("C:\\temp\\RDCOM_server.err", "a");
     }
   }
   return(f);

@@ -3,7 +3,7 @@
 \title{Query or set whether DCOM errors are written to a file}
 \description{
  This function allows one to query or set the flag that controls
-whether DCOM errors are appended to a file (c:/DCOM.err) when
+whether DCOM errors are appended to a file (c:/temp/RDCOM.err) when
 they are encountered.  
 }
 \usage{
