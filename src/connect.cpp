@@ -402,7 +402,7 @@ SEXP getArray(SAFEARRAY *arr, int dimNo, int numDims, long *indices);
 HRESULT
 R_getCOMArgs(SEXP args, DISPPARAMS *parms, DISPID *ids, int numNamedArgs, int *namedArgPositions)
 {
- HRESULT hr;
+ HRESULT hr = S_FALSE;
  int numArgs = Rf_length(args), i, ctr;
  if(numArgs == 0)
    return(S_OK);
@@ -455,7 +455,11 @@ R_getCOMArgs(SEXP args, DISPPARAMS *parms, DISPID *ids, int numNamedArgs, int *n
    }
  }
 
- return(S_OK);
+ if(SUCCEEDED(hr)) {
+   return(S_OK);
+ } else {
+   return(S_FALSE);
+ }
 }
 
 SEXP

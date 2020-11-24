@@ -512,7 +512,11 @@ R_convertDCOMObjectToR(VARIANT *var)
   errorLog("Finished convertDCOMObjectToR\n");
 #endif
 
-  return(ans);
+  if(SUCCEEDED(hr)) {
+    return(ans);
+  } else {
+    return(R_NilValue);
+  }
 }
 
 VARTYPE

@@ -118,10 +118,7 @@ callQueryInterfaceMethod(SEXP obj, char *guid)
 HRESULT __stdcall
 RCOMEnvironmentObject::GetIDsOfNames(REFIID refId, LPOLESTR *name, UINT cNames, LCID local, DISPID *id)
 {
-  SEXP sid;
-  int i, n;
   SEXP names;
-  char str[90];
   HRESULT hr;
 
 #ifdef RDCOM_VERBOSE
@@ -309,7 +306,7 @@ asRStringVector(LPOLESTR *name, UINT cNames)
 HRESULT __stdcall
 RCOMSObject::GetIDsOfNames(REFIID refId, LPOLESTR *name, UINT cNames, LCID locale, DISPID *id)
 {
-  SEXP e, val, tmp;
+  SEXP e, val;
   int errorOccurred, i;
 
   PROTECT(e = allocVector(LANGSXP, 2));
@@ -418,8 +415,12 @@ RCOMSObject::Invoke(DISPID id, REFIID refId, LCID locale, WORD method, DISPPARAM
   
   hr = convertToCOM(val, var);
   UNPROTECT(2);
-
-  return(S_OK);
+  
+  if(SUCCEEDED(hr)) {
+    return(S_OK);
+  } else {
+    return(S_FALSE);
+  }
 }
 
 HRESULT 
