@@ -291,7 +291,7 @@ SEXP
 asRStringVector(LPOLESTR *name, UINT cNames)
 {
   SEXP tmp;
-  int i;
+  UINT i;
   char str[1000];
   PROTECT(tmp = allocVector(STRSXP, cNames));
   for(i = 0; i < cNames; i++) {
@@ -307,7 +307,8 @@ HRESULT __stdcall
 RCOMSObject::GetIDsOfNames(REFIID refId, LPOLESTR *name, UINT cNames, LCID locale, DISPID *id)
 {
   SEXP e, val;
-  int errorOccurred, i;
+  int errorOccurred;
+  UINT i;
 
   PROTECT(e = allocVector(LANGSXP, 2));
   SETCAR(e, VECTOR_ELT(this->obj, IDS_OF_NAMES));
@@ -350,7 +351,8 @@ HRESULT __stdcall
 RCOMSObject::Invoke(DISPID id, REFIID refId, LCID locale, WORD method, DISPPARAMS *parms, 
 				     VARIANT *var, EXCEPINFO *excep, UINT *argNumErr)
 {
-  int errorOccurred, i;
+  int errorOccurred;
+  UINT i;
   SEXP e, ptr, val, tmp;
   HRESULT hr;
 
