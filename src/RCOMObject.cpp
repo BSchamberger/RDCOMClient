@@ -169,7 +169,7 @@ RCOMObject::lookupRName(SEXP names, const char * const str, DISPID *id)
   if(i == n) {
     errorLog("Couldn't find method %s\n", str);
   } else {
-    errorLog("Method id for %s = %d\n", str,  *id);
+    errorLog("Method id for %s = %ld\n", str,  *id);
   }
 #endif
 
@@ -183,7 +183,7 @@ RCOMEnvironmentObject::Invoke(DISPID id, REFIID refId, LCID locale, WORD method,
  SEXP func;
 
 #ifdef RDCOM_VERBOSE
- errorLog("Method id %d, method = %s",  id, method);
+ errorLog("Method id %ld, method = %d",  id, method);
 #endif
  func = VECTOR_ELT(this->obj, id);
 

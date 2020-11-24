@@ -385,7 +385,7 @@ void GetScodeString(HRESULT hr, LPTSTR buf, int bufSize)
 		}
 	}
 	// not found - make one up
-	sprintf(buf, ("OLE error 0x%08x"), hr);
+	sprintf(buf, ("OLE error 0x%lx"), hr);
 }
 
 
@@ -423,7 +423,7 @@ checkErrorInfo(IUnknown *obj, HRESULT status, SEXP *serr)
   HRESULT hr;
   ISupportErrorInfo *info;
 
-  fprintf(stderr, "<checkErrorInfo> %X \n", status);
+  fprintf(stderr, "<checkErrorInfo> 0x%lx \n", status);
 
   if(serr) 
     *serr = NULL;
