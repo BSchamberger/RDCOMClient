@@ -8,7 +8,7 @@ extern "C" {
 }
 
 bool isCOMError(SEXP obj);
-bool isClass(SEXP obj, char *name);
+bool isClass(SEXP obj, const char *name);
 HRESULT processCOMError(SEXP obj, EXCEPINFO *excep, UINT *argNum);
 static SEXP callQueryInterfaceMethod(SEXP obj, char *guid);
 
@@ -445,7 +445,7 @@ isCOMError(SEXP obj)
 }
 
 bool
-isClass(SEXP obj, char *name)
+isClass(SEXP obj, const char *name)
 {
  SEXP klass;
  klass = GET_CLASS(obj);
