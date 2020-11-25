@@ -60,9 +60,4 @@ extern "C" {
 }
 #endif
 
-
-
-#define errorLog(a,...) if(RDCOM_WriteErrors) { fprintf(getErrorFILE(), a, ##__VA_ARGS__); fflush(getErrorFILE()); }
-
-
-
+#define errorLog(a,...) if(RDCOM_WriteErrors) { fprintf(getErrorFILE(), "[%s:%d]: " a, __func__, __LINE__, ##__VA_ARGS__); fflush(getErrorFILE()); }

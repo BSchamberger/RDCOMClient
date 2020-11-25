@@ -76,7 +76,7 @@ SEXP R_convertDCOMObjectToR(const VARIANT *var);
 HRESULT R_getCOMArgs(SEXP args, DISPPARAMS *parms, DISPID *, int numNamedArgs, int *namedArgPos);
 HRESULT R_convertRObjectToDCOM(SEXP obj, VARIANT *var);
 
-void COMError(HRESULT hr);
+void COMError(HRESULT hr, EXCEPINFO* exceptionInfo = NULL);
 
 void GetScodeString(HRESULT hr, LPTSTR buf, int bufSize);
 
