@@ -1,6 +1,7 @@
 COMStop =
 function(msg, status, class = "COMError")
 {
+  Encoding(msg) <- "UTF-8"
   e = simpleError(msg)
   e$status = status
   class(e) = c(class, class(e))
