@@ -28,7 +28,7 @@ AsBstr(const char *str)
   int size = strlen(str);
   int wideSize = 2 * size;
   LPOLESTR wstr = (LPWSTR) S_alloc(wideSize, sizeof(OLECHAR)); 
-  if(MultiByteToWideChar(CP_ACP, 0, str, size, wstr, wideSize) == 0 && str[0]) {
+  if(MultiByteToWideChar(CP_UTF8, 0, str, size, wstr, wideSize) == 0 && str[0]) {
     PROBLEM "Can't create BSTR for '%s'", str
     ERROR;
   }
@@ -55,7 +55,7 @@ FromBstr(BSTR str)
   ptr = (char *) S_alloc(len+1, sizeof(char));
   ptr[len] = '\0';
   if(len > 0) {
-    DWORD ok = WideCharToMultiByte(CP_ACP, 0, str, len, ptr, len, NULL, NULL);
+    DWORD ok = WideCharToMultiByte(CP_UTF8, 0, str, len, ptr, len, NULL, NULL);
     if(ok == 0) 
       ptr = NULL;
   }
