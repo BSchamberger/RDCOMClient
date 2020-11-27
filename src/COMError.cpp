@@ -424,18 +424,17 @@ COMError(HRESULT hr, EXCEPINFO* exceptionInfo = NULL)
   GetScodeString(hr, buf, sizeof(buf)/sizeof(buf[0]));
 	SEXP e;
 	PROTECT(e = allocVector(LANGSXP, 3));
-	
 	if (exceptionInfo) {
-		sprintf(inf, "%S: %S (0x%lx).", exceptionInfo->bstrSource, exceptionInfo->bstrDescription, exceptionInfo->scode);
-	  _stprintf(msg, _T("%s %s"), buf, inf);
-	} else {
-	  sprintf(msg, "%s", buf);
+	    sprintf(inf, "\n%s: %s (0x%lx).", FromBstr(exceptionInfo->bstrSource), FromBstr(exceptionInfo->bstrDescription), exceptionInfo->scode);
+	    _stprintf(msg, _T("%s %s"), buf, inf);
+	  } else {
+	  _stprintf(msg, "%s", buf);
 	}
     /*
     PROBLEM buf
     ERROR;
     */
-										 
+		
     SETCAR(e, Rf_install("COMStop"));
     SETCAR(CDR(e), mkString(msg));
     SETCAR(CDR(CDR(e)), ScalarInteger(hr));

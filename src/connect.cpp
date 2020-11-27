@@ -364,7 +364,7 @@ R_COM_Invoke(SEXP obj, SEXP methodName, SEXP args, WORD callType, WORD doReturn,
 
     if(checkErrorInfo(disp, hr, NULL) != S_OK) {
  fprintf(stderr, "checkErrorInfo %d\n", (int) hr);fflush(stderr);
-      COMError(hr);
+      COMError(hr, &exceptionInfo);
     }
  }
 
