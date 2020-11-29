@@ -76,7 +76,7 @@ SEXP R_convertDCOMObjectToR(const VARIANT *var);
 HRESULT R_getCOMArgs(SEXP args, DISPPARAMS *parms, DISPID *, int numNamedArgs, int *namedArgPos);
 HRESULT R_convertRObjectToDCOM(SEXP obj, VARIANT *var);
 
-void COMError(HRESULT hr);
+void COMError(HRESULT hr, EXCEPINFO* exceptionInfo = NULL);
 
 void GetScodeString(HRESULT hr, LPTSTR buf, int bufSize);
 
@@ -364,7 +364,7 @@ R_COM_Invoke(SEXP obj, SEXP methodName, SEXP args, WORD callType, WORD doReturn,
 
     if(checkErrorInfo(disp, hr, NULL) != S_OK) {
  fprintf(stderr, "checkErrorInfo %d\n", (int) hr);fflush(stderr);
-      COMError(hr);
+      COMError(hr, &exceptionInfo);
     }
  }
 
@@ -402,7 +402,7 @@ SEXP getArray(SAFEARRAY *arr, int dimNo, int numDims, long *indices);
 HRESULT
 R_getCOMArgs(SEXP args, DISPPARAMS *parms, DISPID *ids, int numNamedArgs, int *namedArgPositions)
 {
- HRESULT hr;
+ HRESULT hr = S_FALSE;
  int numArgs = Rf_length(args), i, ctr;
  if(numArgs == 0)
    return(S_OK);
@@ -455,7 +455,11 @@ R_getCOMArgs(SEXP args, DISPPARAMS *parms, DISPID *ids, int numNamedArgs, int *n
    }
  }
 
- return(S_OK);
+ if(SUCCEEDED(hr)) {
+   return(S_OK);
+ } else {
+   return(S_FALSE);
+ }
 }
 
 SEXP
