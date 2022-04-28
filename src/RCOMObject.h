@@ -40,6 +40,8 @@ extern "C" {
   extern void R_ReleaseObject(SEXP);
 }
 
+#include "compat.h"
+
 #ifdef length
 #undef length
 #endif

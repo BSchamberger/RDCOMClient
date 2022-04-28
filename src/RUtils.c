@@ -1,6 +1,8 @@
 #include <RUtils.h>
 #include <R_ext/Rdynload.h>
 
+#include "compat.h"
+
 static SEXP R_IDispatchSym, R_IUnknownSym, R_ITypeLibSym;
 
 void

@@ -23,7 +23,7 @@ extern "C" {
 }
 
 
-
+#include "compat.h"
 #include "converters.h"
 
 
