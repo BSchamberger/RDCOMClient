@@ -1,19 +1,42 @@
 #include "RCOMObject.h"
 #include <windows.h>
 #include <oleauto.h>
+
 #include <stdio.h>  /* sprintf() */
 
 #include <tchar.h>
 
-extern "C" int RDCOM_WriteErrors = 0;
+int RDCOM_WriteErrors = 0;
+const char* RDCOM_LogFile = NULL;
+
+extern "C"
+SEXP
+RDCOM_setLogFile(SEXP file)
+{
+  RDCOM_LogFile = CHAR(STRING_ELT(file,0));
+  return(file);
+}
+
+extern "C"
+SEXP
+RDCOM_getLogFile()
+{
+  if(!RDCOM_LogFile) {
+    return(R_NilValue);
+  } else {
+    SEXP out = PROTECT(allocVector(STRSXP, 1));
+    SET_STRING_ELT(out, 0, mkChar(RDCOM_LogFile));
+    UNPROTECT(1);
+    return(out);
+  }
+}
 
 extern "C"
 SEXP
 RDCOM_setWriteError(SEXP value)
 {
-    int tmp = RDCOM_WriteErrors;
     RDCOM_WriteErrors = asLogical(value);
-    return(ScalarLogical(tmp));
+    return(value);
 }
 
 extern "C"
@@ -26,14 +49,13 @@ RDCOM_getWriteError(SEXP value)
 FILE *
 getErrorFILE()
 {
-  static FILE *f = NULL;
-  if(!f) {
-    f = fopen("C:\\temp\\RDCOM.err", "a");
-    if(!f) {
-      f = fopen("C:\\temp\\RDCOM_server.err", "a");
-    }
+  static FILE* f = NULL;
+  if(RDCOM_LogFile) {
+     f = fopen(RDCOM_LogFile, "a");
+     return(f);
+  } else {
+    return(NULL);
   }
-  return(f);
 }
 
 extern "C" {
@@ -360,8 +382,10 @@ SEXP R_createCOMErrorCodes();
 	#undef MAKE_HRESULT_ENTRY
 
 
-
+#ifndef _countof
 #define _countof(array) (sizeof(array)/sizeof(array[0]))
+#endif
+
 void GetScodeString(HRESULT hr, LPTSTR buf, int bufSize)
 {
 	// first ask the OS to give it to us..
@@ -385,26 +409,35 @@ void GetScodeString(HRESULT hr, LPTSTR buf, int bufSize)
 		}
 	}
 	// not found - make one up
-	sprintf(buf, ("OLE error 0x%08x"), hr);
+	sprintf(buf, ("OLE error 0x%lx"), hr);
 }
 
 
 
 
 void
-COMError(HRESULT hr)
+COMError(HRESULT hr, EXCEPINFO* exceptionInfo = NULL)
 {
-    TCHAR buf[512];
-    GetScodeString(hr, buf, sizeof(buf)/sizeof(buf[0]));
+  TCHAR buf[512];
+	TCHAR inf[512];
+	TCHAR msg[1024];
+  GetScodeString(hr, buf, sizeof(buf)/sizeof(buf[0]));
+	SEXP e;
+	PROTECT(e = allocVector(LANGSXP, 3));
+	if (exceptionInfo) {
+	    sprintf(inf, "\n%s: %s (0x%lx).", FromBstr(exceptionInfo->bstrSource), FromBstr(exceptionInfo->bstrDescription), exceptionInfo->scode);
+	    _stprintf(msg, _T("%s %s"), buf, inf);
+	  } else {
+	  _stprintf(msg, "%s", buf);
+	}
     /*
-    PROBLEM buf
-    ERROR;
+    Rf_error(buf);
     */
-    SEXP e;
-    PROTECT(e = allocVector(LANGSXP, 3));
+		
     SETCAR(e, Rf_install("COMStop"));
-    SETCAR(CDR(e), mkString(buf));
+    SETCAR(CDR(e), mkString(msg));
     SETCAR(CDR(CDR(e)), ScalarInteger(hr));
+	
     Rf_eval(e, R_GlobalEnv);
     UNPROTECT(1); /* Won't come back to here. */
 }
@@ -423,7 +456,7 @@ checkErrorInfo(IUnknown *obj, HRESULT status, SEXP *serr)
   HRESULT hr;
   ISupportErrorInfo *info;
 
-  fprintf(stderr, "<checkErrorInfo> %X \n", status);
+  fprintf(stderr, "<checkErrorInfo> 0x%lx \n", status);
 
   if(serr) 
     *serr = NULL;
@@ -484,15 +517,13 @@ checkErrorInfo(IUnknown *obj, HRESULT status, SEXP *serr)
 
    errorInfo->Release();
 
-   PROBLEM "%s", str
-   WARN;
+   Rf_warning("%s", str);
   } else {
    errorInfo->GetDescription(&ostr);
    str = FromBstr(ostr);
    errorInfo->GetSource(&ostr);
    errorInfo->Release();
-   PROBLEM "%s (%s)", str, FromBstr(ostr)
-   ERROR;
+   Rf_error("%s (%s)", str, FromBstr(ostr));
   }
 
   return(hr);

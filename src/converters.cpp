@@ -3,7 +3,7 @@
 #include <oaidl.h>
 #include <tchar.h>
 
-// #undef ERROR
+// #undef Rf_error
 extern "C" {
 #include "RUtils.h"
 #include <Rdefines.h>
@@ -29,8 +29,7 @@ AsBstr(const char *str)
   int wideSize = 2 * size;
   LPOLESTR wstr = (LPWSTR) S_alloc(wideSize, sizeof(OLECHAR)); 
   if(MultiByteToWideChar(CP_ACP, 0, str, size, wstr, wideSize) == 0 && str[0]) {
-    PROBLEM "Can't create BSTR for '%s'", str
-    ERROR;
+    Rf_error("Can't create BSTR for '%s'", str);
   }
 
   ans = SysAllocStringLen(wstr, size);
@@ -100,15 +99,13 @@ getArray(SAFEARRAY *arr, int dimNo, int numDims, long *indices)
   if(FAILED(status)) {
     TCHAR buf[512];
     GetScodeString(status, buf, sizeof(buf)/sizeof(buf[0]));
-    PROBLEM "Can't get lower bound of array: %s", buf
-    ERROR;
+    Rf_error("Can't get lower bound of array: %s", buf);
   }
   status = SafeArrayGetUBound(arr, dimNo, &ub);
   if(FAILED(status)) {
     TCHAR buf[512];
     GetScodeString(status, buf, sizeof(buf)/sizeof(buf[0]));
-    PROBLEM "Can't get upper bound of array: %s", buf
-    ERROR;
+    Rf_error("Can't get upper bound of array: %s", buf);
   }
 
   n = ub-lb+1;
@@ -124,8 +121,7 @@ getArray(SAFEARRAY *arr, int dimNo, int numDims, long *indices)
       if(FAILED(status)) {
         TCHAR buf[512];
         GetScodeString(status, buf, sizeof(buf)/sizeof(buf[0]));
-        PROBLEM "Can't get element %d of array %s", (int) indices[dimNo-1], buf
-        ERROR;
+        Rf_error("Can't get element %d of array %s", (int) indices[dimNo-1], buf);
       } 
       el = R_convertDCOMObjectToR(&variant);
     } else {
@@ -208,8 +204,7 @@ createRVariantObject(VARIANT *var,  VARTYPE kind)
 
   PROTECT(klass = MAKE_CLASS(className));
   if(klass == NULL || klass == R_NilValue) {
-     PROBLEM  "Can't locate S4 class definition %s", className
-     ERROR;
+     Rf_error("Can't locate S4 class definition %s", className);
   }
   
   dupvar = (VARIANT *) malloc(sizeof(VARIANT));
@@ -255,8 +250,7 @@ numberFromVariant(VARIANT *var, VARTYPE type)
     tmpName = (char *) "COMDecimal";
     break;
   default:
-    PROBLEM "numberFromVariant called with unsupported variant type."
-     ERROR;
+    Rf_error("numberFromVariant called with unsupported variant type.");
   }
   PROTECT(klass = MAKE_CLASS(tmpName));
   PROTECT(ans = NEW(klass));
@@ -290,13 +284,11 @@ R_getVariantRef(SEXP ref)
   VARIANT *p;
 
   if(TYPEOF(ref) != EXTPTRSXP) {
-    PROBLEM "Argument to R_getVariantRef must be an external pointer"
-      ERROR;
+    Rf_error("Argument to R_getVariantRef must be an external pointer");
   }
 
   if(EXTPTR_TAG(ref) != Rf_install("VARIANTReference")) {
-    PROBLEM "Argument to R_getVariantRef does not have the correct tag."
-    ERROR;
+    Rf_error("Argument to R_getVariantRef does not have the correct tag.");
   }
 
   p = (VARIANT *) R_ExternalPtrAddr(ref);
@@ -622,8 +614,7 @@ createGenericCOMObject(SEXP obj, VARIANT *var)
   val = R_tryEval(e, R_GlobalEnv, &errorOccurred);
   UNPROTECT(1);
   if(!LOGICAL(val)[0]) {
-    PROBLEM  "Can't attach the RDCOMServer package needed to create a generic COM object"
-    ERROR;
+    Rf_error("Can't attach the RDCOMServer package needed to create a generic COM object");
     return(S_FALSE);
   }
 
@@ -633,8 +624,7 @@ createGenericCOMObject(SEXP obj, VARIANT *var)
   val = R_tryEval(e, R_GlobalEnv, &errorOccurred);
   if(errorOccurred) {
     UNPROTECT(1);
-    PROBLEM "Can't create COM object"
-    ERROR;
+    Rf_error("Can't create COM object");
     return(S_FALSE);
   }
 
@@ -871,8 +861,7 @@ R_setVariant(SEXP svar, SEXP value, SEXP type)
   VARIANT *var;
   var = (VARIANT *)R_ExternalPtrAddr(GET_SLOT(svar, Rf_install("ref")));
   if(!var) {
-    PROBLEM "Null VARIANT value passed to R_setVariant. Was this saved in another session\n"
-   ERROR;
+    Rf_error("Null VARIANT value passed to R_setVariant. Was this saved in another session\n");
   }
 
   HRESULT hr;

@@ -9,10 +9,6 @@
 # define V_UI4(X) V_UNION((X), uintVal)
 #endif
 
-#ifdef ERROR
-#undef ERROR
-#endif
-
 #endif
 
 
@@ -76,7 +72,7 @@ SEXP R_convertDCOMObjectToR(const VARIANT *var);
 HRESULT R_getCOMArgs(SEXP args, DISPPARAMS *parms, DISPID *, int numNamedArgs, int *namedArgPos);
 HRESULT R_convertRObjectToDCOM(SEXP obj, VARIANT *var);
 
-void COMError(HRESULT hr);
+void COMError(HRESULT hr, EXCEPINFO* exceptionInfo = NULL);
 
 void GetScodeString(HRESULT hr, LPTSTR buf, int bufSize);
 
@@ -171,8 +167,7 @@ R_connect(SEXP className, SEXP raiseError)
 	return(R_NilValue);
     }
   } else {
-      PROBLEM "Couldn't get clsid from the string"
-	WARN;
+    Rf_warning("Couldn't get clsid from the string");
   }
   return(ans);
 }
@@ -199,8 +194,7 @@ R_create(SEXP className)
   if(FAILED(sc)) {
    TCHAR buf[512];
    GetScodeString(sc, buf, sizeof(buf)/sizeof(buf[0]));
-   PROBLEM "Failed to create COM object: %s", buf
-   ERROR;
+   Rf_error("Failed to create COM object: %s", buf);
   }
 
   //Already AddRef in the CoCreateInstance
@@ -298,8 +292,7 @@ R_COM_Invoke(SEXP obj, SEXP methodName, SEXP args, WORD callType, WORD doReturn,
      hr = disp->GetIDsOfNames(IID_NULL, comNames, numNames, LOCALE_USER_DEFAULT, methodIds);
 
      if(FAILED(hr) || hr == DISP_E_UNKNOWNNAME /* || DISPID mid == DISPID_UNKNOWN */) {
-       PROBLEM "Cannot locate %d name(s) %s in COM object (status = %d)", numNamedArgs, pmname, (int) hr
-	 ERROR;
+       Rf_error("Cannot locate %d name(s) %s in COM object (status = %d)", numNamedArgs, pmname, (int) hr);
      }
  } else {
    for(i = 0; i < Rf_length(ids); i++) {
@@ -318,8 +311,7 @@ R_COM_Invoke(SEXP obj, SEXP methodName, SEXP args, WORD callType, WORD doReturn,
    if(FAILED(hr)) {
      clearVariants(&params);
      freeSysStrings(comNames, numNames);
-     PROBLEM "Failed in converting arguments to DCOM call"
-     ERROR;
+     Rf_error("Failed in converting arguments to DCOM call");
    }
    if(callType & DISPATCH_PROPERTYPUT) {
      params.rgdispidNamedArgs = (DISPID*) S_alloc(1, sizeof(DISPID));
@@ -402,7 +394,7 @@ SEXP getArray(SAFEARRAY *arr, int dimNo, int numDims, long *indices);
 HRESULT
 R_getCOMArgs(SEXP args, DISPPARAMS *parms, DISPID *ids, int numNamedArgs, int *namedArgPositions)
 {
- HRESULT hr;
+ // HRESULT hr;
  int numArgs = Rf_length(args), i, ctr;
  if(numArgs == 0)
    return(S_OK);
@@ -441,7 +433,8 @@ R_getCOMArgs(SEXP args, DISPPARAMS *parms, DISPID *ids, int numNamedArgs, int *n
      }
      el = VECTOR_ELT(args, i);
      VariantInit(var);
-     hr = R_convertRObjectToDCOM(el, var);
+     // hr = R_convertRObjectToDCOM(el, var);
+     R_convertRObjectToDCOM(el, var);
    }
  } else {
 
@@ -451,7 +444,8 @@ R_getCOMArgs(SEXP args, DISPPARAMS *parms, DISPID *ids, int numNamedArgs, int *n
    for(i = 0, ctr = numArgs-1; i < numArgs; i++, ctr--) {
      SEXP el = VECTOR_ELT(args, i);
      VariantInit(&parms->rgvarg[ctr]);
-     hr = R_convertRObjectToDCOM(el, &(parms->rgvarg[ctr]));
+     // hr = R_convertRObjectToDCOM(el, &(parms->rgvarg[ctr]));
+     R_convertRObjectToDCOM(el, &(parms->rgvarg[ctr]));
    }
  }
 
