@@ -8,7 +8,7 @@ extern "C" {
 }
 
 bool isCOMError(SEXP obj);
-bool isClass(SEXP obj, const char *name);
+bool isClass(SEXP obj, char const *name);
 HRESULT processCOMError(SEXP obj, EXCEPINFO *excep, UINT *argNum);
 static SEXP callQueryInterfaceMethod(SEXP obj, char *guid);
 
@@ -354,7 +354,7 @@ RCOMSObject::Invoke(DISPID id, REFIID refId, LCID locale, WORD method, DISPPARAM
   int errorOccurred;
   UINT i;
   SEXP e, ptr, val, tmp;
-  HRESULT hr;
+  // HRESULT hr;
 
 #if defined(RDCOM_VERBOSE) && RDCOM_VERBOSE
   errorLog("About to call RCOMSObject::Invoke\n");
@@ -415,7 +415,8 @@ RCOMSObject::Invoke(DISPID id, REFIID refId, LCID locale, WORD method, DISPPARAM
     return(status);
   }
   
-  hr = convertToCOM(val, var);
+  // hr = convertToCOM(val, var);
+  convertToCOM(val, var);
   UNPROTECT(2);
   
   if(SUCCEEDED(hr)) {
@@ -445,7 +446,7 @@ isCOMError(SEXP obj)
 }
 
 bool
-isClass(SEXP obj, const char *name)
+isClass(SEXP obj, char const *name)
 {
  SEXP klass;
  klass = GET_CLASS(obj);

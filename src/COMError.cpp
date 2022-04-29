@@ -431,8 +431,7 @@ COMError(HRESULT hr, EXCEPINFO* exceptionInfo = NULL)
 	  _stprintf(msg, "%s", buf);
 	}
     /*
-    PROBLEM buf
-    ERROR;
+    Rf_error(buf);
     */
 		
     SETCAR(e, Rf_install("COMStop"));
@@ -518,15 +517,13 @@ checkErrorInfo(IUnknown *obj, HRESULT status, SEXP *serr)
 
    errorInfo->Release();
 
-   PROBLEM "%s", str
-   WARN;
+   Rf_warning("%s", str);
   } else {
    errorInfo->GetDescription(&ostr);
    str = FromBstr(ostr);
    errorInfo->GetSource(&ostr);
    errorInfo->Release();
-   PROBLEM "%s (%s)", str, FromBstr(ostr)
-   ERROR;
+   Rf_error("%s (%s)", str, FromBstr(ostr));
   }
 
   return(hr);

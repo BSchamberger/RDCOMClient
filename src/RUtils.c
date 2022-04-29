@@ -17,22 +17,19 @@ derefRDCOMPointer(SEXP el)
  void *ptr = NULL;
 
  if(TYPEOF(el) != EXTPTRSXP || el == R_NilValue) {
-   PROBLEM "Looking at a COM object that does not have an external pointer in the ref slot"
-   ERROR;
+   Rf_error("Looking at a COM object that does not have an external pointer in the ref slot");
  }
 
 #if USE_COM_SYMBOLS
  if(R_ExternalPtrTag(el) != R_IDispatchSym || R_ExternalPtrTag(el) != R_IUnknownSym) {
-   PROBLEM "Unusual RCOM object since the internal tag is not one we have seen."
-   WARN;
+   Rf_warning("Unusual RCOM object since the internal tag is not one we have seen.");
  }
 #endif
 
  ptr = R_ExternalPtrAddr(el);
 
  if(!ptr) {
-   PROBLEM "RDCOM Reference object is not valid (NULL). This may be due to restoring it from a previous session."
-   ERROR;
+   Rf_error("RDCOM Reference object is not valid (NULL). This may be due to restoring it from a previous session.");
  } 
 
  return(ptr);
@@ -156,8 +153,7 @@ R_createRCOMUnknownObject(void *ref, const char *tag)
 #else
   klass = MAKE_CLASS("COMIDispatch");
   if(klass == NULL || klass == R_NilValue) {
-   PROBLEM  "Can't locate S4 class definition COMIDispatch"
-     ERROR;
+    Rf_error("Can't locate S4 class definition COMIDispatch");
   }
 
   /*XX  the call to duplicate is needed until 1.6.2 is released
