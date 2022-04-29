@@ -418,8 +418,12 @@ RCOMSObject::Invoke(DISPID id, REFIID refId, LCID locale, WORD method, DISPPARAM
   // hr = convertToCOM(val, var);
   convertToCOM(val, var);
   UNPROTECT(2);
-
-  return(S_OK);
+  
+  if(SUCCEEDED(hr)) {
+    return(S_OK);
+  } else {
+    return(S_FALSE);
+  }
 }
 
 HRESULT 
