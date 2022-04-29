@@ -354,7 +354,7 @@ RCOMSObject::Invoke(DISPID id, REFIID refId, LCID locale, WORD method, DISPPARAM
   int errorOccurred;
   UINT i;
   SEXP e, ptr, val, tmp;
-  // HRESULT hr;
+  HRESULT hr;
 
 #if defined(RDCOM_VERBOSE) && RDCOM_VERBOSE
   errorLog("About to call RCOMSObject::Invoke\n");
@@ -415,7 +415,7 @@ RCOMSObject::Invoke(DISPID id, REFIID refId, LCID locale, WORD method, DISPPARAM
     return(status);
   }
   
-  // hr = convertToCOM(val, var);
+  hr = convertToCOM(val, var);
   convertToCOM(val, var);
   UNPROTECT(2);
   
