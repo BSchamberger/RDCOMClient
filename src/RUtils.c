@@ -109,13 +109,19 @@ registerCOMObject(void *ref, int reg)
 SEXP
 createCOMReferenceObject(SEXP ptr, const char *tag)
 {
-  SEXP e, val;
+  SEXP e, val, rdcom;
   PROTECT(e = allocVector(LANGSXP, 3));
-  SETCAR(e, Rf_install("createCOMReference")); /* in RDCOMClient code. */
+  
+  /* explicitly get createCOMReference from this package's R functions */
+  SEXP getNamespaceSym = Rf_install("getNamespace");
+  PROTECT(rdcom = eval(Rf_lang2( getNamespaceSym, Rf_mkString("RDCOMClient") ),
+                       R_GlobalEnv) ) ;
+  
+  SETCAR(e, Rf_findVarInFrame(rdcom, Rf_install("createCOMReference")));
   SETCAR(CDR(e), ptr);
   SETCAR(CDR(CDR(e)), mkString(tag));
   val = eval(e, R_GlobalEnv);
-  UNPROTECT(1);
+  UNPROTECT(2);
   return(val);
 }
 
